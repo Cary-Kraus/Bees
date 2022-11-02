@@ -8,53 +8,48 @@ using System.Windows.Forms;
 
 namespace Bees
 {
-    class Bee
+    class Bee : Entity
     {
-        /*int x1, y1; //начальные координаты пчелы
-        int x2, y2; //конечные координаты пчелы
-        public int x, y; //настоящие коодинаты пчелы*/
-        static List<Bee> bees; //список всех пчел
-        static int countBees = 0;
-        public int time = 0;
-        Image image;
-
-        public Bee()
+        const int MAX_SPEED = 5;
+        int vectorX, vectorY;
+        static Random rand = new Random();
+        static int startID = 0;
+        public Bee(Point p) : base(p)
         {
-            //x = 30;
-           // y = 30;
-            countBees++;
+            image = Image.FromFile("bee1.gif");           
+            vectorX = rand.Next(-MAX_SPEED, MAX_SPEED);
+            vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
+            ID = ++startID;
         }
-        void Live()
+        public override void Draw(Graphics g)
         {
-
+            g.DrawImage(image, new Rectangle(coords.X, coords.Y, 64, 64));
         }
-        void Draw(Graphics g) //отрисовка
+        public override void Live()
         {
-            //g.DrawImage(image, p);
-        }
-        /*private Point GetCoords() //получить координаты пчелы
-        {
+            coords.X += vectorX;
+            coords.Y += vectorY;
 
-        }
-        static List<Bee> GetBees() //получить список всех пчел
-        {
+            if (coords.X <= 0)
+            {
+                vectorX = -vectorX;
+            }
+            if (coords.X >= 1100)
+            {
+                vectorX = -vectorX;
+            }
+            if (coords.Y <= 0)
+            {
+                vectorY = -vectorY;
+            }
+            if (coords.Y >= 700)
+            {
+                vectorY = -vectorY;
+            }
 
-        }*/
+            Flower.Find(this); //поиск ближайшего цветка
+        }
+
     }
-    class Queen : Bee //оплодотворение, выкладка яиц, питание, время воспроизведения потомства, сытость (да/нет), картинка
-    {
-        
-    }
-    class Drone : Bee //оплодотворение
-    {
 
-    }
-    class Worker : Bee //двигаться, заметить цветок, сесть на цветок, взять мед из цветка, залететь в улей, положить мед в соты, вылететь из улья, наличие меда у пчелы, время жизни
-    {
-
-        void Smell(Flower f) //почуять запах
-        {
-
-        }
-    }
 }

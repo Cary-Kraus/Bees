@@ -13,64 +13,41 @@ namespace Bees
     public partial class Form1 : Form
     {
         static Timer timer = new Timer();
-        static bool UpMove, LeftMove;
 
         static Bitmap bitmap;
         static Graphics graphics;
 
-        static PictureBox picBee2 = new PictureBox()
-        {
-            Location = new Point(100,200),
-            BackColor = Color.Transparent,
-            Size = new Size(64, 64),           
-            Image = Image.FromFile("bee1.gif"),
-            SizeMode = PictureBoxSizeMode.Zoom
-        }; //картинка пчелы 2
-
         internal void TimerStart()
         {
-            int i = 0;
-            timer.Interval = 10;
+            timer.Interval = 67;
             timer.Enabled = true;
             timer.Start();
             timer.Tick += (args, e) =>
             {
-                if (LeftMove == true)
-                    picBee2.Left += 1;
-                else picBee2.Left -= 1;
-                if (UpMove == true)
-                    picBee2.Top += 1;
-                else picBee2.Top -= 1;
-
-                if (picBee2.Left <= ClientRectangle.Left)
-                    LeftMove = true;
-                if (picBee2.Right >= ClientRectangle.Right)
-                    LeftMove = false;
-                if (picBee2.Top <= ClientRectangle.Top)
-                    UpMove = true;
-                if (picBee2.Bottom >= ClientRectangle.Bottom)
-                    UpMove = false;
-                //picBee2.Left++;
+                foreach (var item in Entity.GetAll()) //медот "жить" у всех сущностей
+                    item.Live();
                 Refresh();
             };
         }    
 
         private void button1_Click(object sender, EventArgs e)
         {
+            Random rand = new Random();            
+            for (int i = 0; i < 10; i++) //случайная генерация пчел
+                new Bee(new Point(rand.Next(Width), rand.Next(Height)));
+            for (int i = 0; i < 15; i++) //случайная генерация цветов
+                new Flower(new Point(rand.Next(Width / 2), rand.Next(Height)), "4.png", 3);
             TimerStart();
         }        
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            //сюда отрисовка
-            e.Graphics.DrawImage(picBee2.Image, new Rectangle(100, 100, 64, 64));
-            //e.Graphics.DrawImage(Image.FromFile("bee1.gif"), new Rectangle(50,50,64,64)); //картинка пчелы 1 (не работает)
-            Controls.Add(picBee2);
+            foreach (var entity in Entity.GetAll()) //отрисовка всех сущностей
+                entity.Draw(e.Graphics);           
         }
         public Form1()
         {
             InitializeComponent();
         }
-
     }
 }
