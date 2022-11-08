@@ -26,7 +26,6 @@ namespace Bees
         }
         public virtual void Draw(Graphics g)
         {
-            //g.DrawImage(image, new Rectangle(coords.X, coords.Y, 64, 64));
             g.DrawImage(image, new Point(coords.X, coords.Y));
         }
         public Point GetCoords()
