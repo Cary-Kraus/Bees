@@ -12,15 +12,17 @@ namespace Bees
     class Flower : Entity
     {
         static List<Flower> flowers = new List<Flower>();
-        int radius;
+        static int radius;
         static int startID = 0;
+        bool isBusy;
 
-        public Flower(Point p, string picName, int radius) :base(p)
+        public Flower(Point p, string picName) :base(p)
         {
-            this.radius = radius;
+            radius = 100;
             image = Image.FromFile(picName);
             flowers.Add(this);
             ID = ++startID;
+            isBusy = false;
         }
         public override void Live()
         {
@@ -28,7 +30,8 @@ namespace Bees
         }
         public override void Draw(Graphics g)
         {
-            g.DrawImage(image, new Rectangle(coords.X, coords.Y, 100, 100));
+            g.FillEllipse(new SolidBrush(Color.FromArgb(90, Color.OliveDrab)), coords.X - radius, coords.Y - radius, radius * 2, radius * 2);
+            g.DrawImage(image, new Rectangle(coords.X - 50, coords.Y - 50, 100, 100));            
         }
 
         bool IsEmpty()
@@ -37,25 +40,28 @@ namespace Bees
         }
         public static Flower Find(Bee bee) //поиск ближайшего к пчеле цветка
         {
-            Point p = bee.GetCoords();
-            double minDistance = double.MaxValue;
-            Flower flowerMin = null;
-
+            Flower flowerMin = null; //цветок на мин дистанции
+            double minDistance = double.MaxValue;//минимальная дистанция
+            Point p = bee.GetCoords(); //координаты пчелы
+            double x = 0;
+            double y = 0;
             foreach (var flower in flowers) //вычисление минимального расстояния от пчелы до цветка из списка цветов
             {
-                double x = (p.X - flower.GetCoords().X);
-                double y = (p.Y - flower.GetCoords().Y);
-                double distance = Math.Sqrt(x * x + y * y);
+                x = p.X - flower.GetCoords().X; 
+                y = p.Y - flower.GetCoords().Y;
+                double distance = Math.Sqrt(x * x + y * y); //расстояние между цветком и пчелой
                 if (distance < minDistance)
                 {
                     minDistance = distance; //мин расстояние
                     flowerMin = flower; //цветок с мин расстоянием (ближайший)
-                }                   
+                }   
             }
-            string xStr = flowerMin?.GetCoords().X.ToString();
-            string yStr = flowerMin?.GetCoords().Y.ToString();
-            File.AppendAllText("file.txt", $"id пчелы: {bee.ID} id цветка: {flowerMin?.ID}, координаты цветка: {xStr} {yStr}\n");
-            return flowerMin;
+            if (Math.Abs(x) <= radius & Math.Abs(y) <= radius) //если пчела видит цветок
+            {
+                return flowerMin;
+            }
+            else return null;//цветок не найден
+
         }
     }
 }
