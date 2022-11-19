@@ -14,160 +14,148 @@ namespace Bees
         const int MAX_SPEED = 5;
         public static int MaxX;
         public static int MaxY;
-        int vectorX, vectorY;
+        double vectorX, vectorY;
         static Random rand = new Random();
         static int startID = 0;
-        public static string textF = "";
+        static Image im1 = Image.FromFile("bee1.png");
+        static Image im2 = Image.FromFile("bee2.png");
+        static Image im3 = Image.FromFile("beeH1.png");
+        static Image im4 = Image.FromFile("beeH2.png");
+        bool isFull;
+        
         public enum State
         {
-            Search, MoveTo, NoticeFlower, TakingHoney, GivingHoney, Birth
+            Search, MoveTo, TakeHoney, GiveHoney, Birth
         };
-        public State state;
+        State state;
+        Entity target;
 
         public Bee(Point p) : base(p)
         {
-            image = Image.FromFile("bee1.gif");           
+            image = im1;           
             vectorX = rand.Next(-MAX_SPEED, MAX_SPEED);
             vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
             ID = ++startID;
             state = State.Search;
+            isFull = false;
+            imRadius = 10;
         }
         public override void Draw(Graphics g)
         {
-            g.DrawImage(image, new Rectangle(coords.X - 64 / 2, coords.Y - 64 / 2, 64, 64));
-        }
+            if (vectorX < 0)
+            {
+                if (isFull)
+                    image = im4;
+                else
+                image = im2;
+            }                
+            else
+            {
+                if (isFull)
+                    image = im3;
+                else
+                image = im1;
+            }
+                           
+            g.DrawImage(image, new Rectangle(coords.X - 64 / 2, coords.Y - 64 / 2, 60, 50));
+        }        
+        
         public override void Live()
         {
-
-            //if (state == State.Search)
-            //{
-            //    coords.X += vectorX;
-            //    coords.Y += vectorY;
-
-            //    File.AppendAllText("file.txt", $"Пчела летит, векторы {vectorX}, {vectorY}\n");
-            //    if (coords.X <= 0)
-            //        vectorX = -vectorX;
-            //    if (coords.X >= MaxX)
-            //        vectorX = -vectorX;
-            //    if (coords.Y <= 0)
-            //        vectorY = -vectorY;
-            //    if (coords.Y >= MaxY)
-            //        vectorY = -vectorY;
-            //    if ((Flower.Find(this) is null) == false) //если цветок нашелся
-            //    {                    
-            //        state = State.MoveTo;                    
-            //    }
-            //    else
-            //    {
-            //        //продолжать летать
-            //        state = State.Search;
-            //        File.AppendAllText("file.txt", $"Пчела не нашла цветок\n");
-            //    }
-            //}
-            //if (state == State.MoveTo)
-            //{
-            //    File.AppendAllText("file.txt", $"Пчела увидела цветок\n");
-            //    Point f = Flower.Find(this).GetCoords(); //поиск ближайшего цветка
-            //    SetTarget(f); //поменять вектор в направлении к цветку
-            //}
-
-
-
-
-            coords.X += vectorX;
-            coords.Y += vectorY;
-            if (vectorX < 0)
-                image = Image.FromFile("bee2.gif");
-            else image = Image.FromFile("bee1.gif");
-
-            File.AppendAllText("file.txt", $"Пчела летит, векторы {vectorX}, {vectorY}\n");
-            if (coords.X <= 0)
-                vectorX = -vectorX;
-            if (coords.X >= MaxX)
-                vectorX = -vectorX;
-            if (coords.Y <= 0)
-                vectorY = -vectorY;
-            if (coords.Y >= MaxY)
-                vectorY = -vectorY;
-
-            if ((Flower.Find(this) is null) == false) //если цветок нашелся
+            switch (state)
             {
-                File.AppendAllText("file.txt", $"Пчела увидела цветок\n");
-                Point f = Flower.Find(this).GetCoords(); //поиск ближайшего цветка
+                case State.Search:
+                    Search();
+                    break;
+                case State.MoveTo:
+                    MoveTo();
+                    break;
+                case State.TakeHoney:
+                    TakeHoney();
+                    break;
+                case State.GiveHoney:
+                    GiveHoney();
+                    break;
+            }
+
+            coords.X =  Convert.ToInt32(coords.X + vectorX);
+            coords.Y = Convert.ToInt32(coords.Y + vectorY);
+            
+            File.AppendAllText("file.txt", $"Пчела летит, векторы {vectorX}, {vectorY}\n");
+            if (coords.X <= 20)
+                vectorX = -vectorX;
+            if (coords.X >= MaxX-50)
+                vectorX = -vectorX;
+            if (coords.Y <= 20)
+                vectorY = -vectorY;
+            if (coords.Y >= MaxY-50)
+                vectorY = -vectorY;
+        }
+
+        void Search()
+        {
+            Flower f = Flower.Find(this);
+            if (f != null && target == null)//если цветок нашелся
+            {
+                File.AppendAllText("file.txt", $"------------------Пчела увидела цветок\n");
                 SetTarget(f); //поменять вектор в направлении к цветку
+                state = State.MoveTo;
             }
             else
             {
                 //продолжать летать
-                File.AppendAllText("file.txt", $"Пчела {coords.X}, {coords.Y} не нашла цветок\n");
+                File.AppendAllText("file.txt", $"Пчела не нашла цветок\n");
             }
-
         }
-
-        void SetTarget(Point d) //d - координаты цветка
+        void SetTarget(Entity e) //e - entity(цветок/улей)
         {
-            File.AppendAllText("file.txt", $"Пчела {coords.X}, {coords.Y} собирается лететь к цветку {d.X}, {d.Y}\n");
-            //находим разность модулей - координаты нового вектора
-            double x = Math.Abs(coords.X - d.X);
-            double y = Math.Abs(coords.Y - d.Y);
-            int vecX = Convert.ToInt32(Math.Round(x));
-            int vecY = Convert.ToInt32(Math.Round(y));
-            Point point = new Point(vecX, vecY);
-            if ((vecX > MAX_SPEED) | (vecY > MAX_SPEED)) //если координаты больше MAX_SPEED
+            File.AppendAllText("file.txt", "Вызван метод SetTarget\n");
+            //находим разность координат - координаты нового вектора
+            Point p = e.GetCoords();
+            double vx = p.X - coords.X;
+            double vy = p.Y - coords.Y;
+            double dist = Math.Sqrt(vx * vx + vy * vy);
+            if (dist >= 0.01)
             {
-                point = CutVector(new Point(vecX, vecY));
-                vecX = point.X;
-                vecY = point.Y;
+                target = e;
+                vectorX = vx / dist * MAX_SPEED;
+                vectorY = vy / dist * MAX_SPEED;
             }
-            //если пчела слева от цветка то значение положительное
-            if (coords.X - d.X > 0) //если пчела справа от цветка
+            else
             {
-                vecX = -vecX; //то значение отрицательное
+                vectorX = 0;
+                vectorY = 0;
             }
-            //если пчела сверху от цветка то значение положительное
-            if (coords.Y - d.Y > 0) //если пчела снизу цветка
-            {
-                vecY = -vecY; //то значение отрицательное
-            }
-            vectorX = vecX;
-            vectorY = vecY;
-            File.AppendAllText("file.txt", $"Пчела меняет вектор на {vectorX}, {vectorY}\n");
-            //условия столкновения с цветком
-            if (coords.X == d.X)
-                TakeHoney();
-            if (coords.Y == d.Y)
-                TakeHoney();
-
         }
-        Point CutVector(Point p) //укорочение вектора до величины MAX_SPEED
+        void MoveTo()
         {
-            if (p.X > p.Y) //если вектор x больше вектора y
+            File.AppendAllText("file.txt", "Вызван метод MoveTo\n");
+
+            if (target != null && target.InRadius(GetCoords(), target.imRadius)) 
             {
-                //поделить оба вектора на наименьшее значение                    
-                p.X = p.X/ p.Y;
-                p.Y = p.Y / p.Y;
+                coords = target.GetCoords();                
+                vectorX = 0;
+                vectorY = 0;
+                if (isFull)
+                    state = State.GiveHoney;
+                else
+                    state = State.TakeHoney;
+                //target = null;
             }
-            else if (p.X < p.Y) //если вектор y больше вектора x
-            {
-                //поделить оба вектора на наименьшее значение
-                p.Y = p.Y / p.X;
-                p.X = p.X / p.X;                  
-            }
-            else if ((p.X == p.Y)) //если координаты равны
-            {
-                //поделить оба вектора на них же
-                p.X = p.X / p.X;
-                p.Y = p.Y / p.Y;
-            }
-            return p;
         }
         void TakeHoney()
         {
-            state = State.TakingHoney;
-            File.AppendAllText("file.txt",$"Пчела берет мед\n");
+            File.AppendAllText("file.txt",$"----------Пчела берет мед\n");
+            isFull = true;
+            SetTarget(hive);
+            state = State.MoveTo;
+        }
+        void GiveHoney()
+        {
+            File.AppendAllText("file.txt", $"-------------Пчела кладет мед\n");
             vectorX = 0;
             vectorY = 0;
-            //время сбора нектара
+            isFull = false;
         }
     }
 

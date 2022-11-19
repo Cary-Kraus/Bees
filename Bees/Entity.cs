@@ -13,6 +13,8 @@ namespace Bees
         protected Point coords;
         public int ID;
         protected Image image;
+        public static BeeHive hive;
+        public int imRadius;
 
         public Entity(Point p)
         {
@@ -31,6 +33,14 @@ namespace Bees
         public Point GetCoords()
         {
             return coords;
+        }
+
+        public bool InRadius(Point p, int radius)
+        {
+            int x = p.X - coords.X;
+            int y = p.Y - coords.Y;
+            int distance = x * x + y * y; //расстояние между цветком и пчелой
+            return distance <= radius * radius;
         }
         public static List<Entity> GetAll()
         {

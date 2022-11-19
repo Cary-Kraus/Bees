@@ -15,6 +15,7 @@ namespace Bees
         static int radius;
         static int startID = 0;
         bool isBusy;
+        
 
         public Flower(Point p, string picName) :base(p)
         {
@@ -23,6 +24,7 @@ namespace Bees
             flowers.Add(this);
             ID = ++startID;
             isBusy = false;
+            imRadius = 12;
         }
         public override void Live()
         {
@@ -40,27 +42,15 @@ namespace Bees
         }
         public static Flower Find(Bee bee) //поиск ближайшего к пчеле цветка
         {
-            Flower flowerMin = null; //цветок на мин дистанции
-            double minDistance = double.MaxValue;//минимальная дистанция
             Point p = bee.GetCoords(); //координаты пчелы
-            double x = 0;
-            double y = 0;
+            int x;
+            int y;
             foreach (var flower in flowers) //вычисление минимального расстояния от пчелы до цветка из списка цветов
             {
-                x = p.X - flower.GetCoords().X; 
-                y = p.Y - flower.GetCoords().Y;
-                double distance = Math.Sqrt(x * x + y * y); //расстояние между цветком и пчелой
-                if (distance < minDistance)
-                {
-                    minDistance = distance; //мин расстояние
-                    flowerMin = flower; //цветок с мин расстоянием (ближайший)
-                }   
+                if (flower.InRadius(p, radius))
+                    return flower;
             }
-            if (Math.Abs(x) <= radius & Math.Abs(y) <= radius) //если пчела видит цветок
-            {
-                return flowerMin;
-            }
-            else return null;//цветок не найден
+            return null;//цветок не найден
 
         }
     }

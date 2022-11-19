@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Bees
 {
@@ -29,16 +30,19 @@ namespace Bees
 
         private void button1_Click(object sender, EventArgs e)
         {
+
             Random rand = new Random();
             Bee.MaxX = Width;
             Bee.MaxY = Height;
-            
-            for (int i = 0; i < 1; i++) //случайная генерация цветов
-                new Flower(new Point(rand.Next(Width / 2), rand.Next(Height - 50)), $"{rand.Next(4,7)}.png");                
 
-            for (int i = 0; i < 10; i++) //случайная генерация пчел
-                new Bee(new Point(rand.Next(Width - 100), rand.Next(Height - 50)));
+            Entity.hive = new BeeHive(new Point(Width - 100, Height/2));
+            for (int i = 0; i < 5; i++) //случайная генерация цветов
+                new Flower(new Point(rand.Next(50, Width / 2), rand.Next(50, Height - 50)), $"{rand.Next(4,7)}.png");                
+
+            for (int i = 0; i < 3; i++) //случайная генерация пчел
+                new Bee(new Point(rand.Next(50, Width - 100), rand.Next(50, Height - 50)));
             TimerStart();
+            button1.Visible = false;
            // CreateParamsPanel();
         }        
 
@@ -112,7 +116,22 @@ namespace Bees
         public Form1()
         {
             InitializeComponent();
-            //Controls.Add(textBox);
+        }
+
+        private void buttonPause_Click(object sender, EventArgs e)
+        {
+            timer.Stop();
+        }
+
+        private void buttonRestart_Click(object sender, EventArgs e)
+        {
+            File.WriteAllText("file.txt", "");
+            Application.Restart();
+        }
+
+        private void buttonResumet_Click(object sender, EventArgs e)
+        {
+            timer.Start();
         }
     }
 }
