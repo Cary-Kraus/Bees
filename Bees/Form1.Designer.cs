@@ -30,62 +30,73 @@ namespace Bees
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.button1 = new System.Windows.Forms.Button();
-            this.process1 = new System.Diagnostics.Process();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
+            this.buttonStart = new System.Windows.Forms.Button();
+            this.buttonPause = new System.Windows.Forms.Button();
+            this.buttonRestart = new System.Windows.Forms.Button();
+            this.buttonResume = new System.Windows.Forms.Button();
+            this.buttonParams = new System.Windows.Forms.Button();
+            this.buttonMenu = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // button1
+            // buttonStart
             // 
-            this.button1.Location = new System.Drawing.Point(12, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(115, 65);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Старт";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.buttonStart.Location = new System.Drawing.Point(12, 10);
+            this.buttonStart.Name = "buttonStart";
+            this.buttonStart.Size = new System.Drawing.Size(115, 65);
+            this.buttonStart.TabIndex = 0;
+            this.buttonStart.Text = "Старт";
+            this.buttonStart.UseVisualStyleBackColor = true;
+            this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
             // 
-            // process1
+            // buttonPause
             // 
-            this.process1.StartInfo.Domain = "";
-            this.process1.StartInfo.LoadUserProfile = false;
-            this.process1.StartInfo.Password = null;
-            this.process1.StartInfo.StandardErrorEncoding = null;
-            this.process1.StartInfo.StandardOutputEncoding = null;
-            this.process1.StartInfo.UserName = "";
-            this.process1.SynchronizingObject = this;
+            this.buttonPause.Location = new System.Drawing.Point(561, 12);
+            this.buttonPause.Name = "buttonPause";
+            this.buttonPause.Size = new System.Drawing.Size(81, 44);
+            this.buttonPause.TabIndex = 1;
+            this.buttonPause.Text = "Пауза";
+            this.buttonPause.UseVisualStyleBackColor = true;
+            this.buttonPause.Click += new System.EventHandler(this.buttonPause_Click);
             // 
-            // button2
+            // buttonRestart
             // 
-            this.button2.Location = new System.Drawing.Point(144, 13);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(82, 64);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "Пауза";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.buttonPause_Click);
+            this.buttonRestart.Location = new System.Drawing.Point(777, 12);
+            this.buttonRestart.Name = "buttonRestart";
+            this.buttonRestart.Size = new System.Drawing.Size(109, 44);
+            this.buttonRestart.TabIndex = 2;
+            this.buttonRestart.Text = "Обновить";
+            this.buttonRestart.UseVisualStyleBackColor = true;
+            this.buttonRestart.Click += new System.EventHandler(this.buttonRestart_Click);
             // 
-            // button3
+            // buttonResume
             // 
-            this.button3.Location = new System.Drawing.Point(375, 12);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(102, 64);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "Обновить";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.buttonRestart_Click);
+            this.buttonResume.Location = new System.Drawing.Point(648, 12);
+            this.buttonResume.Name = "buttonResume";
+            this.buttonResume.Size = new System.Drawing.Size(123, 44);
+            this.buttonResume.TabIndex = 3;
+            this.buttonResume.Text = "Возобновить";
+            this.buttonResume.UseVisualStyleBackColor = true;
+            this.buttonResume.Click += new System.EventHandler(this.buttonResume_Click);
             // 
-            // button4
+            // buttonParams
             // 
-            this.button4.Location = new System.Drawing.Point(241, 13);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(128, 64);
-            this.button4.TabIndex = 3;
-            this.button4.Text = "Возобновить";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.buttonResumet_Click);
+            this.buttonParams.Location = new System.Drawing.Point(892, 12);
+            this.buttonParams.Name = "buttonParams";
+            this.buttonParams.Size = new System.Drawing.Size(64, 44);
+            this.buttonParams.TabIndex = 4;
+            this.buttonParams.Text = "Меню";
+            this.buttonParams.UseVisualStyleBackColor = true;
+            this.buttonParams.Click += new System.EventHandler(this.buttonParams_Click);
+            // 
+            // buttonMenu
+            // 
+            this.buttonMenu.Location = new System.Drawing.Point(962, 12);
+            this.buttonMenu.Name = "buttonMenu";
+            this.buttonMenu.Size = new System.Drawing.Size(108, 44);
+            this.buttonMenu.TabIndex = 5;
+            this.buttonMenu.Text = "На главную";
+            this.buttonMenu.UseVisualStyleBackColor = true;
+            this.buttonMenu.Click += new System.EventHandler(this.buttonMenu_Click);
             // 
             // Form1
             // 
@@ -93,14 +104,19 @@ namespace Bees
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.DarkSeaGreen;
             this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1082, 653);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.buttonMenu);
+            this.Controls.Add(this.buttonParams);
+            this.Controls.Add(this.buttonResume);
+            this.Controls.Add(this.buttonRestart);
+            this.Controls.Add(this.buttonPause);
+            this.Controls.Add(this.buttonStart);
             this.DoubleBuffered = true;
             this.Name = "Form1";
             this.Text = "Form1";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.Form1_Paint);
             this.ResumeLayout(false);
 
@@ -108,11 +124,12 @@ namespace Bees
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Diagnostics.Process process1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button buttonStart;
+        private System.Windows.Forms.Button buttonPause;
+        private System.Windows.Forms.Button buttonRestart;
+        private System.Windows.Forms.Button buttonResume;
+        private System.Windows.Forms.Button buttonParams;
+        private System.Windows.Forms.Button buttonMenu;
     }
 }
 

@@ -14,50 +14,56 @@ namespace Bees
         const int MAX_SPEED = 5;
         public static int MaxX;
         public static int MaxY;
-        double vectorX, vectorY;
-        static Random rand = new Random();
-        static int startID = 0;
-        static Image im1 = Image.FromFile("bee1.png");
-        static Image im2 = Image.FromFile("bee2.png");
-        static Image im3 = Image.FromFile("beeH1.png");
-        static Image im4 = Image.FromFile("beeH2.png");
+        float vectorX, vectorY;
+        static Random rand = new Random();        
+        static Image im1 = Image.FromFile("bee1.gif");
+        static Image im2 = Image.FromFile("bee2.gif");
+        //static Image im3 = Image.FromFile("beeH1.png");
+        //static Image im4 = Image.FromFile("beeH2.png");        
         bool isFull;
-        
+        public static int deathTime;
+        public static int birthTime;
+        public static int countBees;
+        public static int growTime;
+        public static int countEggs;
+
         public enum State
         {
-            Search, MoveTo, TakeHoney, GiveHoney, Birth
+            Search, MoveTo, TakeHoney, GiveHoney, Birth, Death
         };
         State state;
         Entity target;
 
         public Bee(Point p) : base(p)
         {
-            image = im1;           
+            image = im1;
+            ImageAnimator.Animate(image, null);
             vectorX = rand.Next(-MAX_SPEED, MAX_SPEED);
             vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
-            ID = ++startID;
+            ID = startID++;
             state = State.Search;
             isFull = false;
-            imRadius = 10;
+            imRadius = 5;
         }
         public override void Draw(Graphics g)
         {
+            
             if (vectorX < 0)
             {
-                if (isFull)
-                    image = im4;
-                else
-                image = im2;
+                //if (isEmpty)
+                //    image = im4;
+                //else
+                    image = im2;
             }                
             else
             {
-                if (isFull)
-                    image = im3;
-                else
-                image = im1;
+                //if (isEmpty)
+                //    image = im3;
+                //else
+                    image = im1;
             }
-                           
-            g.DrawImage(image, new Rectangle(coords.X - 64 / 2, coords.Y - 64 / 2, 60, 50));
+            ImageAnimator.UpdateFrames();
+            g.DrawImage(image, new RectangleF(coords.X - 64 / 2, coords.Y - 64 / 2, 64, 64));
         }        
         
         public override void Live()
@@ -78,8 +84,8 @@ namespace Bees
                     break;
             }
 
-            coords.X =  Convert.ToInt32(coords.X + vectorX);
-            coords.Y = Convert.ToInt32(coords.Y + vectorY);
+            coords.X += vectorX;
+            coords.Y += vectorY;
             
             File.AppendAllText("file.txt", $"Пчела летит, векторы {vectorX}, {vectorY}\n");
             if (coords.X <= 20)
@@ -90,8 +96,12 @@ namespace Bees
                 vectorY = -vectorY;
             if (coords.Y >= MaxY-50)
                 vectorY = -vectorY;
+            if (vectorX == 0 | vectorY == 0)
+            {
+                vectorX = rand.Next(-MAX_SPEED, MAX_SPEED);
+                vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
+            }
         }
-
         void Search()
         {
             Flower f = Flower.Find(this);
@@ -107,19 +117,20 @@ namespace Bees
                 File.AppendAllText("file.txt", $"Пчела не нашла цветок\n");
             }
         }
-        void SetTarget(Entity e) //e - entity(цветок/улей)
+        void SetTarget(Entity e) //e - entity(цветок/сота)
         {
+            if (e == null) return;
             File.AppendAllText("file.txt", "Вызван метод SetTarget\n");
             //находим разность координат - координаты нового вектора
-            Point p = e.GetCoords();
-            double vx = p.X - coords.X;
-            double vy = p.Y - coords.Y;
+            PointF p = e.GetCoords();
+            float vx = p.X - coords.X;
+            float vy = p.Y - coords.Y;
             double dist = Math.Sqrt(vx * vx + vy * vy);
             if (dist >= 0.01)
             {
                 target = e;
-                vectorX = vx / dist * MAX_SPEED;
-                vectorY = vy / dist * MAX_SPEED;
+                vectorX = (float)(vx / dist * MAX_SPEED);
+                vectorY = (float)(vy / dist * MAX_SPEED);
             }
             else
             {
@@ -131,23 +142,24 @@ namespace Bees
         {
             File.AppendAllText("file.txt", "Вызван метод MoveTo\n");
 
-            if (target != null && target.InRadius(GetCoords(), target.imRadius)) 
+            if (target != null && target.InRadius(GetCoords(), target.imRadius))
             {
-                coords = target.GetCoords();                
+                coords = target.GetCoords();
                 vectorX = 0;
                 vectorY = 0;
                 if (isFull)
                     state = State.GiveHoney;
                 else
                     state = State.TakeHoney;
-                //target = null;
+                target = null;
             }
+            
         }
         void TakeHoney()
         {
             File.AppendAllText("file.txt",$"----------Пчела берет мед\n");
             isFull = true;
-            SetTarget(hive);
+            SetTarget(HoneyComb.FindFreeComb());
             state = State.MoveTo;
         }
         void GiveHoney()
@@ -156,6 +168,10 @@ namespace Bees
             vectorX = 0;
             vectorY = 0;
             isFull = false;
+            HoneyComb.PutHoney(HoneyComb.FindEmptyComb());
+            state = State.Search;
+            vectorX = rand.Next(-MAX_SPEED, MAX_SPEED);
+            vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
         }
     }
 

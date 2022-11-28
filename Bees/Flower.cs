@@ -17,7 +17,7 @@ namespace Bees
         bool isBusy;
         
 
-        public Flower(Point p, string picName) :base(p)
+        public Flower(Point p, string picName) : base(p)
         {
             radius = 100;
             image = Image.FromFile(picName);
@@ -32,8 +32,8 @@ namespace Bees
         }
         public override void Draw(Graphics g)
         {
-            g.FillEllipse(new SolidBrush(Color.FromArgb(90, Color.OliveDrab)), coords.X - radius, coords.Y - radius, radius * 2, radius * 2);
-            g.DrawImage(image, new Rectangle(coords.X - 50, coords.Y - 50, 100, 100));            
+            //g.FillEllipse(new SolidBrush(Color.FromArgb(90, Color.OliveDrab)), coords.X - radius, coords.Y - radius, radius * 2, radius * 2);
+            g.DrawImage(image, new RectangleF(coords.X - 50, coords.Y - 50, 100, 100));            
         }
 
         bool IsEmpty()
@@ -42,9 +42,7 @@ namespace Bees
         }
         public static Flower Find(Bee bee) //поиск ближайшего к пчеле цветка
         {
-            Point p = bee.GetCoords(); //координаты пчелы
-            int x;
-            int y;
+            PointF p = bee.GetCoords(); //координаты пчелы
             foreach (var flower in flowers) //вычисление минимального расстояния от пчелы до цветка из списка цветов
             {
                 if (flower.InRadius(p, radius))

@@ -9,15 +9,16 @@ namespace Bees
 {
     class BeeHive : Entity
     {
-        static Image im = Image.FromFile("r.jpg");
+        //Image im = Image.FromFile("r.jpg");
         public BeeHive(Point p) :base(p)
         {
-            image = im;
-            imRadius = 50;
+            //image = im;
+            imRadius = 5;
         }
         public override void Draw(Graphics g)
         {
-            g.DrawImage(image, new Rectangle(coords.X - 64 / 2, coords.Y - 64 / 2, 100, 100));
+            //g.DrawImage(image, new Rectangle(coords.X - 64 / 2, coords.Y - 64 / 2, 100, 100));
+            g.FillRectangle(new SolidBrush(Color.Moccasin), new RectangleF(coords.X, coords.Y, 250, 550));
         }
 
     }

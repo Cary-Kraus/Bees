@@ -10,8 +10,9 @@ namespace Bees
     class Entity
     {
         static List<Entity> entities = new List<Entity>();
-        protected Point coords;
+        protected PointF coords;
         public int ID;
+        public static int startID = 0;
         protected Image image;
         public static BeeHive hive;
         public int imRadius;
@@ -28,19 +29,19 @@ namespace Bees
         }
         public virtual void Draw(Graphics g)
         {
-            g.DrawImage(image, new Point(coords.X - image.Width / 2, coords.Y - image.Height / 2));
+            g.DrawImage(image, new PointF(coords.X - image.Width / 2, coords.Y - image.Height / 2));
         }
-        public Point GetCoords()
+        public PointF GetCoords()
         {
             return coords;
         }
 
-        public bool InRadius(Point p, int radius)
+        public bool InRadius(PointF p, int radius)
         {
-            int x = p.X - coords.X;
-            int y = p.Y - coords.Y;
-            int distance = x * x + y * y; //расстояние между цветком и пчелой
-            return distance <= radius * radius;
+            double x = p.X - coords.X;
+            double y = p.Y - coords.Y;
+            double distance = Math.Sqrt(x * x + y * y); //расстояние между цветком и пчелой
+            return distance <= radius;
         }
         public static List<Entity> GetAll()
         {
