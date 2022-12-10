@@ -26,15 +26,15 @@ namespace Bees
                 for (int i = 0; i < ents.Count; i++) //медот "жить" у всех сущностей
                     ents[i].Live();
                 Refresh();
-            };
-            
+            };            
         }
-
         private void buttonStart_Click(object sender, EventArgs e)
         {
             Random rand = new Random();
-            Bee.MaxX = Width;
-            Bee.MaxY = Height;
+            //Bee.MaxX = Width;
+            //Bee.MaxY = Height;
+            Worker.MaxX = Width;
+            Worker.MaxY = Height;
 
             //Entity.hive = new BeeHive(new Point(Width - 330, Height/3));
             for (int j = 0; j < 6; j++)
@@ -54,7 +54,7 @@ namespace Bees
                 new Flower(new Point(rand.Next(50, Width / 2), rand.Next(50, Height - 50)), $"{rand.Next(1,3)}.png");                
 
             for (int i = 0; i < Bee.countBees; i++)
-                new Bee(new Point(rand.Next(50, Width - 200), rand.Next(50, Height - 50)));
+                new Worker(new Point(rand.Next(50, Width - 200), rand.Next(50, Height - 50)));
             TimerStart();
             buttonStart.Visible = false;
         }        

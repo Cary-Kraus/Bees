@@ -4,13 +4,14 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Bees
 {
     class HoneyComb : BeeHive
     {
         //static bool[] honey = new bool[19];
-        static HoneyComb[] combs = new HoneyComb[90];
+        static HoneyComb[] combs = new HoneyComb[85];
         public bool isRezerved;
         public bool isBusy;
         static int l = 0;
@@ -33,8 +34,11 @@ namespace Bees
         }
         public static HoneyComb FindFreeComb() //поиск не занятой другой пчелой соты
         {
+            
              foreach (var item in combs)
-             {               
+             {
+                if (item.ID > combs.Length / 3)
+                    return null;
                 if (item.k < 3 && !item.isRezerved)
                     return item;
              }
