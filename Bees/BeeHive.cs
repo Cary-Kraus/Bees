@@ -13,7 +13,6 @@ namespace Bees
         public BeeHive(Point p) :base(p)
         {
             //image = im;
-            imRadius = 5;
         }
         public override void Draw(Graphics g)
         {

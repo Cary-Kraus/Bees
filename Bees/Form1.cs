@@ -22,10 +22,12 @@ namespace Bees
             timer.Start();
             timer.Tick += (args, e) =>
             {
-                foreach (var item in Entity.GetAll()) //медот "жить" у всех сущностей
-                    item.Live();
+                List<Entity> ents = Entity.GetAll();
+                for (int i = 0; i < ents.Count; i++) //медот "жить" у всех сущностей
+                    ents[i].Live();
                 Refresh();
             };
+            
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -45,13 +47,14 @@ namespace Bees
                         new HoneyComb(new Point(Width - 150 - i * 22, Height / 5 + 100 + j * 66));
                 }
             }
-            
+
+            new Queen(new Point(1270, 600));
             
             for (int i = 0; i < 10; i++)
                 new Flower(new Point(rand.Next(50, Width / 2), rand.Next(50, Height - 50)), $"{rand.Next(1,3)}.png");                
 
             for (int i = 0; i < Bee.countBees; i++)
-                new Bee(new Point(rand.Next(50, Width - 100), rand.Next(50, Height - 50)));
+                new Bee(new Point(rand.Next(50, Width - 200), rand.Next(50, Height - 50)));
             TimerStart();
             buttonStart.Visible = false;
         }        
@@ -86,7 +89,7 @@ namespace Bees
                 };
                 panelParams.Controls.Add(arrTrackBar[i]);
             }
-            arrTrackBar[0].Minimum = 3;
+            arrTrackBar[0].Minimum = 1;
             arrTrackBar[0].Maximum = 15;
             //arrTrackBar[1].Minimum = 5;
             //arrTrackBar[1].Maximum = 20;
@@ -144,8 +147,9 @@ namespace Bees
             }; //кнопка подтверждения
             buttonConfirm.Click += (sender, args) =>
             {
+                Random rand = new Random();
                 Bee.countBees = Convert.ToInt32(arrLabel[0].Text);
-                Bee.deathTime = Convert.ToInt32(arrLabel[1].Text);
+                Bee.deathTime = Convert.ToInt32(rand.Next(Convert.ToInt32(arrLabel[1].Text)));
                 Bee.birthTime = Convert.ToInt32(arrLabel[2].Text);
                 Bee.growTime = Convert.ToInt32(arrLabel[3].Text);
                 Bee.countEggs = Convert.ToInt32(arrLabel[4].Text);
@@ -191,7 +195,7 @@ namespace Bees
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            ParamsPanel();
         }
         private void buttonMenu_Click(object sender, EventArgs e)
         {

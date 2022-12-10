@@ -14,7 +14,8 @@ namespace Bees
         static List<Flower> flowers = new List<Flower>();
         static int radius;
         static int startID = 0;
-        bool isBusy;
+        public bool isBusy;
+        
         
 
         public Flower(Point p, string picName) : base(p)
@@ -24,7 +25,7 @@ namespace Bees
             flowers.Add(this);
             ID = ++startID;
             isBusy = false;
-            imRadius = 12;
+            name = "Цветок";
         }
         public override void Live()
         {

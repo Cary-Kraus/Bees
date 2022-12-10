@@ -18,15 +18,19 @@ namespace Bees
         static Random rand = new Random();        
         static Image im1 = Image.FromFile("bee1.gif");
         static Image im2 = Image.FromFile("bee2.gif");
-        //static Image im3 = Image.FromFile("beeH1.png");
-        //static Image im4 = Image.FromFile("beeH2.png");        
+        static Image im3 = Image.FromFile("beeH1.gif");
+        static Image im4 = Image.FromFile("beeH2.gif");        
         bool isFull;
-        public static int deathTime;
-        public static int birthTime;
-        public static int countBees;
-        public static int growTime;
-        public static int countEggs;
-
+        public static int deathTime; //жизненный цикл рабочей пчелы
+        public static int birthTime; //время возрождения пчел/размножения матки
+        public static int countBees; //кол-во рабочих пчел
+        public static int growTime; //время превращения яйца в пчелу
+        public static int countEggs; //кол-во яиц пчел
+        public int tempDeathTime;
+        public int tempBirthTime;
+        public int tempGrowTime;
+        public int time = 0;
+        HoneyComb comb;
         public enum State
         {
             Search, MoveTo, TakeHoney, GiveHoney, Birth, Death
@@ -36,38 +40,43 @@ namespace Bees
 
         public Bee(Point p) : base(p)
         {
+            image = im2;
+            ImageAnimator.Animate(image, null);
             image = im1;
+            ImageAnimator.Animate(image, null);
+            image = im3;
+            ImageAnimator.Animate(image, null);
+            image = im4;
             ImageAnimator.Animate(image, null);
             vectorX = rand.Next(-MAX_SPEED, MAX_SPEED);
             vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
             ID = startID++;
             state = State.Search;
             isFull = false;
-            imRadius = 5;
         }
         public override void Draw(Graphics g)
         {
             
             if (vectorX < 0)
             {
-                //if (isEmpty)
-                //    image = im4;
-                //else
+                if (isFull)
+                    image = im4;
+                else
                     image = im2;
             }                
             else
             {
-                //if (isEmpty)
-                //    image = im3;
-                //else
+                if (isFull)
+                    image = im3;
+                else
                     image = im1;
             }
             ImageAnimator.UpdateFrames();
-            g.DrawImage(image, new RectangleF(coords.X - 64 / 2, coords.Y - 64 / 2, 64, 64));
-        }        
-        
+            g.DrawImage(image, new RectangleF(coords.X - 32, coords.Y - 32, 64, 64));
+        }                
         public override void Live()
         {
+            Grow();
             switch (state)
             {
                 case State.Search:
@@ -82,12 +91,14 @@ namespace Bees
                 case State.GiveHoney:
                     GiveHoney();
                     break;
+                case State.Death:
+                    Death();
+                    break;
             }
 
             coords.X += vectorX;
             coords.Y += vectorY;
             
-            File.AppendAllText("file.txt", $"Пчела летит, векторы {vectorX}, {vectorY}\n");
             if (coords.X <= 20)
                 vectorX = -vectorX;
             if (coords.X >= MaxX-50)
@@ -106,22 +117,15 @@ namespace Bees
         {
             Flower f = Flower.Find(this);
             if (f != null && target == null)//если цветок нашелся
-            {
-                File.AppendAllText("file.txt", $"------------------Пчела увидела цветок\n");
+            {            
+                //File.AppendAllText("file.txt", $"------------------Пчела увидела цветок\n");
                 SetTarget(f); //поменять вектор в направлении к цветку
                 state = State.MoveTo;
-            }
-            else
-            {
-                //продолжать летать
-                File.AppendAllText("file.txt", $"Пчела не нашла цветок\n");
             }
         }
         void SetTarget(Entity e) //e - entity(цветок/сота)
         {
-            if (e == null) return;
-            File.AppendAllText("file.txt", "Вызван метод SetTarget\n");
-            //находим разность координат - координаты нового вектора
+            if (e == null) return;            
             PointF p = e.GetCoords();
             float vx = p.X - coords.X;
             float vy = p.Y - coords.Y;
@@ -140,11 +144,11 @@ namespace Bees
         }
         void MoveTo()
         {
-            File.AppendAllText("file.txt", "Вызван метод MoveTo\n");
 
-            if (target != null && target.InRadius(GetCoords(), target.imRadius))
+            if (target != null && target.InRadius(GetCoords(), imRadius))
             {
-                coords = target.GetCoords();
+                //File.AppendAllText("file.txt", $"-----Пчела {ID} садится на {target.name} №{target.ID} {coords.X} {coords.Y}-------\n");
+                coords = target.GetCoords();                
                 vectorX = 0;
                 vectorY = 0;
                 if (isFull)
@@ -154,24 +158,41 @@ namespace Bees
                 target = null;
             }
             
-        }
+        }        
         void TakeHoney()
         {
-            File.AppendAllText("file.txt",$"----------Пчела берет мед\n");
             isFull = true;
-            SetTarget(HoneyComb.FindFreeComb());
+            comb = HoneyComb.FindFreeComb(); //находим свободную соту, запоминаем
+            SetTarget(comb); //устанаввливаем путь к ней
+            //File.AppendAllText("file.txt", $"-----Пчела {ID} бронирует {target.name} №{target.ID} пустые? {comb.k < 3} k={comb.k}\n"); 
+            comb.isRezerved = true; //бронируем соту
             state = State.MoveTo;
         }
         void GiveHoney()
         {
-            File.AppendAllText("file.txt", $"-------------Пчела кладет мед\n");
+            //File.AppendAllText("file.txt", $"------Пчела {ID} кладет мед {comb.name} №{comb.ID} пустые?{comb.k < 3} k={comb.k}\n");
             vectorX = 0;
             vectorY = 0;
             isFull = false;
-            HoneyComb.PutHoney(HoneyComb.FindEmptyComb());
+            HoneyComb.PutHoney(comb);
             state = State.Search;
+            
             vectorX = rand.Next(-MAX_SPEED, MAX_SPEED);
             vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
+        }        
+        void Grow()
+        {
+            time++;
+            if (time > rand.Next(10,50)) state = State.Death;
+        }
+        void Death()
+        {
+            im1 = im2 = im3 = im4 = Image.FromFile("Egg.png");
+            vectorX = 0;
+            vectorY = 0;
+            target = null;
+            if (time > rand.Next(50, 100))
+                entities.Remove(this);
         }
     }
 

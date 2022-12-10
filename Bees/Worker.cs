@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace Bees
 {
-    //class Worker : Bee
-    //{
-    //    public static Image image = Image.FromFile("bee1.gif");
-    //    void Live()
-    //    {
+    class Worker : Bee
+    {
+        public static Image image = Image.FromFile("bee1.gif");
+        void Live()
+        {
 
-    //    }
-    //    void Draw(Graphics g)
-    //    {
+        }
+        void Draw(Graphics g)
+        {
 
-    //    }
-        
-    //}
+        }
+
+    }
 }

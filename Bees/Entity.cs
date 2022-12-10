@@ -9,13 +9,13 @@ namespace Bees
 {
     class Entity
     {
-        static List<Entity> entities = new List<Entity>();
+        protected static List<Entity> entities = new List<Entity>();
         protected PointF coords;
         public int ID;
         public static int startID = 0;
         protected Image image;
-        public static BeeHive hive;
-        public int imRadius;
+        public static int imRadius = 4;
+        public string name;
 
         public Entity(Point p)
         {
@@ -47,5 +47,6 @@ namespace Bees
         {
             return entities;
         }
+        
     }
 }
