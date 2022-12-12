@@ -17,17 +17,21 @@ namespace Bees
 
         internal void TimerStart()
         {
-            timer.Interval = 67;
-            timer.Enabled = true;
-            timer.Start();
-            timer.Tick += (args, e) =>
+            if (Bee.timerTick == false)
+                timer.Stop();
+            else
             {
-                List<Entity> ents = Entity.GetAll();
-                for (int i = 0; i < ents.Count; i++) //медот "жить" у всех сущностей
-                    ents[i].Live();
-                Refresh();
-            };
-            
+                timer.Interval = 1;
+                timer.Enabled = true;
+                timer.Start();
+                timer.Tick += (args, e) =>
+                {
+                    List<Entity> ents = Entity.GetAll();
+                    for (int i = 0; i < ents.Count; i++) //медот "жить" у всех сущностей
+                        ents[i].Live();
+                    Refresh();
+                };
+            }
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
@@ -37,18 +41,37 @@ namespace Bees
             Bee.MaxY = Height;
 
             //Entity.hive = new BeeHive(new Point(Width - 330, Height/3));
-            for (int j = 0; j < 6; j++)
+            //for (int j = 0; j < 6; j++)
+            //{
+            //    for (int i = 0; i < 14; i++)
+            //    {
+            //        if (i % 2 != 0)
+            //            new HoneyComb(new Point(Width - 150 - i * 22, Height / 5 + 67 + j * 66));
+            //        else
+            //            new HoneyComb(new Point(Width - 150 - i * 22, Height / 5 + 100 + j * 66));
+            //    }
+            //}
+            for (int j = 0; j < 12; j++)
             {
-                for (int i = 0; i < 14; i++)
+                if (j % 2 != 0)
                 {
-                    if (i % 2 != 0)
-                        new HoneyComb(new Point(Width - 150 - i * 22, Height / 5 + 67 + j * 66));
-                    else
-                        new HoneyComb(new Point(Width - 150 - i * 22, Height / 5 + 100 + j * 66));
+                    for (int i = 0; i < 7; i++)
+                    {
+                        new HoneyComb(new Point(Width - 173 - i * 44, Height / 5 + 67 + j * 33));
+                    }
                 }
+                else
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        new HoneyComb(new Point(Width - 150 - i * 44, Height / 5 + 67 + j * 33));
+                    }
+                }
+                
             }
+            
 
-            new Queen(new Point(1270, 600));
+            new Queen(new Point(Convert.ToInt32(HoneyComb.GetQueenPlace().X), Convert.ToInt32(HoneyComb.GetQueenPlace().Y)));
             
             for (int i = 0; i < 10; i++)
                 new Flower(new Point(rand.Next(50, Width / 2), rand.Next(50, Height - 50)), $"{rand.Next(1,3)}.png");                
@@ -151,7 +174,7 @@ namespace Bees
                 Bee.countBees = Convert.ToInt32(arrLabel[0].Text);
                 Bee.deathTime = Convert.ToInt32(rand.Next(Convert.ToInt32(arrLabel[1].Text)));
                 Bee.birthTime = Convert.ToInt32(arrLabel[2].Text);
-                Bee.growTime = Convert.ToInt32(arrLabel[3].Text);
+                Egg.growTime = Convert.ToInt32(arrLabel[3].Text);
                 Bee.countEggs = Convert.ToInt32(arrLabel[4].Text);
                 panelParams.Visible = false;
             };

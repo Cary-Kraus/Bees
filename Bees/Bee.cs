@@ -23,20 +23,20 @@ namespace Bees
         bool isFull;
         public static int deathTime; //жизненный цикл рабочей пчелы
         public static int birthTime; //время возрождения пчел/размножения матки
-        public static int countBees; //кол-во рабочих пчел
-        public static int growTime; //время превращения яйца в пчелу
+        public static int countBees; //кол-во рабочих пчел        
         public static int countEggs; //кол-во яиц пчел
         public int tempDeathTime;
         public int tempBirthTime;
         public int tempGrowTime;
         public int time = 0;
+        public static bool timerTick = true;
         HoneyComb comb;
         public enum State
         {
             Search, MoveTo, TakeHoney, GiveHoney, Birth, Death
         };
         State state;
-        Entity target;
+        internal Entity target;
 
         public Bee(Point p) : base(p)
         {
@@ -76,7 +76,7 @@ namespace Bees
         }                
         public override void Live()
         {
-            Grow();
+            //Grow();
             switch (state)
             {
                 case State.Search:
@@ -117,13 +117,12 @@ namespace Bees
         {
             Flower f = Flower.Find(this);
             if (f != null && target == null)//если цветок нашелся
-            {            
-                //File.AppendAllText("file.txt", $"------------------Пчела увидела цветок\n");
+            {                          
                 SetTarget(f); //поменять вектор в направлении к цветку
                 state = State.MoveTo;
             }
         }
-        void SetTarget(Entity e) //e - entity(цветок/сота)
+        internal void SetTarget(Entity e) //e - entity(цветок/сота)
         {
             if (e == null) return;            
             PointF p = e.GetCoords();
@@ -144,10 +143,8 @@ namespace Bees
         }
         void MoveTo()
         {
-
             if (target != null && target.InRadius(GetCoords(), imRadius))
-            {
-                //File.AppendAllText("file.txt", $"-----Пчела {ID} садится на {target.name} №{target.ID} {coords.X} {coords.Y}-------\n");
+            {                
                 coords = target.GetCoords();                
                 vectorX = 0;
                 vectorY = 0;
@@ -163,14 +160,17 @@ namespace Bees
         {
             isFull = true;
             comb = HoneyComb.FindFreeComb(); //находим свободную соту, запоминаем
-            SetTarget(comb); //устанаввливаем путь к ней
-            //File.AppendAllText("file.txt", $"-----Пчела {ID} бронирует {target.name} №{target.ID} пустые? {comb.k < 3} k={comb.k}\n"); 
+            if (comb == null)
+            {
+                isFull = false;
+                return;
+            }
+            SetTarget(comb); //устанавливаем путь к ней         
             comb.isRezerved = true; //бронируем соту
             state = State.MoveTo;
         }
         void GiveHoney()
-        {
-            //File.AppendAllText("file.txt", $"------Пчела {ID} кладет мед {comb.name} №{comb.ID} пустые?{comb.k < 3} k={comb.k}\n");
+        {            
             vectorX = 0;
             vectorY = 0;
             isFull = false;

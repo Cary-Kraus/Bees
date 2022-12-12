@@ -15,7 +15,6 @@ namespace Bees
             image = IM;
             ImageAnimator.Animate(image, null);
         }
-
         void Live()
         {
 

@@ -10,7 +10,12 @@ namespace Bees
     class Worker : Bee
     {
         public static Image image = Image.FromFile("bee1.gif");
-        void Live()
+        public Worker(Point p) : base(p)
+        {
+            //image = im;
+            //state = State.Live;
+        }
+        public override void Live()
         {
 
         }

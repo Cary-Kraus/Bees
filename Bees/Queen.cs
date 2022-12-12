@@ -15,6 +15,7 @@ namespace Bees
             Reproduce, Live
         };
         State state;
+        public int k = 0;
         public Queen(Point p) : base(p)
         {
             image = im;
@@ -23,31 +24,50 @@ namespace Bees
         public override void Live()
         {
             time++;
-            if (time == 100) state = State.Reproduce;
+            if (time == 50) state = State.Reproduce;
             if (state == State.Reproduce)
                 Reproduce();
         }
         public override void Draw(Graphics g)
         {
-            g.DrawImage(image, new RectangleF(coords.X - 50, coords.Y - 50, 64, 64));
+            g.DrawImage(image, new RectangleF(coords.X - 32, coords.Y - 32, 64, 64));
         }
         public void Reproduce() //рождение нового потомства
         {
-            time++;            
-            Pairing();
-            PutEggs();
-            state = State.Live;
+            time++;
+            Pairing(); //спаривание
+            SetTarget(HoneyComb.combs[k]); //установить цель - сота
+            MoveTo();  //лететь к цели
+            PutEgg(); //выложить яйцо
+            if (k < 3) //если не все яйца выложены
+            {
+                k++;
+                return;
+            }               
+            state = State.Live;            
         }
         public void Pairing() //спаривание королевы с трутнем
         {
 
         }
-        public void PutEggs() //выкладка яиц
+        void MoveTo()
         {
-            for (int i = 0; i < 3; i++)
+            if (target != null && target.InRadius(GetCoords(), imRadius))
             {
-                new Egg(new Point(1270, 500 - i * 50));
+                coords = target.GetCoords();
+                vectorX = 0;
+                vectorY = 0;
+                if (isFull)
+                    state = State.GiveHoney;
+                else
+                    state = State.TakeHoney;
+                target = null;
             }
+
+        }
+        public void PutEgg() //выкладка яиц
+        {
+             new Egg(new Point(Convert.ToInt32(HoneyComb.GetEggsPlaces()[k].X), Convert.ToInt32(HoneyComb.GetEggsPlaces()[k].Y)));         
         }
     }
 }
