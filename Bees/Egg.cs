@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -8,7 +9,9 @@ namespace Bees
     class Egg : Bee
     {
         public static int growTime;
+        int tempGrowTime;
         int id = 0;
+        public static bool isBorn = true;
         public enum State
         {
             Impregnate, UnImpregnate, //оплодотворенные - рабочие, неоплодотворенные - трутни
@@ -20,13 +23,15 @@ namespace Bees
         {
             image = im;
             id++;
+            tempGrowTime = growTime;
         }
         public override void Live()
         {
-            time++;
-            if (time == 100) state = State.Done;
-            if (state == State.Done)
+            tempGrowTime--;
+            if (tempGrowTime == 0)
+            {
                 Transformation();
+            }
         }
         public override void Draw(Graphics g)
         {
@@ -34,8 +39,10 @@ namespace Bees
         }
         void Transformation()
         {
+            Point p = new Point((int)coords.X, (int)coords.Y );
             entities.Remove(this);
-            new Bee(new Point(Convert.ToInt32(HoneyComb.GetEggsPlaces()[id].X), Convert.ToInt32(HoneyComb.GetEggsPlaces()[id].Y)));
+            new Bee(p);
+            isBorn = true;
         }
     }
 }

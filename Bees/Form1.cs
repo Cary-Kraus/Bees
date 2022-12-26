@@ -40,17 +40,6 @@ namespace Bees
             Bee.MaxX = Width;
             Bee.MaxY = Height;
 
-            //Entity.hive = new BeeHive(new Point(Width - 330, Height/3));
-            //for (int j = 0; j < 6; j++)
-            //{
-            //    for (int i = 0; i < 14; i++)
-            //    {
-            //        if (i % 2 != 0)
-            //            new HoneyComb(new Point(Width - 150 - i * 22, Height / 5 + 67 + j * 66));
-            //        else
-            //            new HoneyComb(new Point(Width - 150 - i * 22, Height / 5 + 100 + j * 66));
-            //    }
-            //}
             for (int j = 0; j < 12; j++)
             {
                 if (j % 2 != 0)
@@ -69,15 +58,15 @@ namespace Bees
                 }
                 
             }
-            
-
-            new Queen(new Point(Convert.ToInt32(HoneyComb.GetQueenPlace().X), Convert.ToInt32(HoneyComb.GetQueenPlace().Y)));
-            
             for (int i = 0; i < 10; i++)
-                new Flower(new Point(rand.Next(50, Width / 2), rand.Next(50, Height - 50)), $"{rand.Next(1,3)}.png");                
-
+                new Flower(new Point(rand.Next(50, Width / 2), rand.Next(50, Height - 50)), $"{rand.Next(1,5)}.png");                
             for (int i = 0; i < Bee.countBees; i++)
                 new Bee(new Point(rand.Next(50, Width - 200), rand.Next(50, Height - 50)));
+            for (int i = 0; i < 3; i++)
+            {
+                new Drone(new Point((int)(HoneyComb.GetDronesPlaces()[i].X), (int)(HoneyComb.GetDronesPlaces()[i].Y)));
+            }
+            Queen queen = new Queen(new Point((int)(HoneyComb.GetQueenPlace().X), (int)(HoneyComb.GetQueenPlace().Y)));
             TimerStart();
             buttonStart.Visible = false;
         }        
@@ -102,8 +91,8 @@ namespace Bees
             {
                 arrTrackBar[i] = new TrackBar()
                 {
-                    Maximum = 20,
-                    Minimum = 5,
+                    Maximum = 300,
+                    Minimum = 100,
                     TickFrequency = 5,
                     LargeChange = 3,
                     SmallChange = 2,
@@ -114,14 +103,15 @@ namespace Bees
             }
             arrTrackBar[0].Minimum = 1;
             arrTrackBar[0].Maximum = 15;
-            //arrTrackBar[1].Minimum = 5;
-            //arrTrackBar[1].Maximum = 20;
-            //arrTrackBar[2].Minimum = 5;
-            //arrTrackBar[2].Maximum = 20;
-            //arrTrackBar[3].Minimum = 5;
-            //arrTrackBar[3].Maximum = 20;
-            //arrTrackBar[4].Minimum = 5;
-            //arrTrackBar[4].Maximum = 20;
+            arrTrackBar[1].Maximum = 1000;
+            arrTrackBar[1].Minimum = 10;
+            arrTrackBar[1].TickFrequency = 100;
+            arrTrackBar[2].Minimum = 200;
+            arrTrackBar[2].Maximum = 300;
+            arrTrackBar[3].Minimum = 50;
+            arrTrackBar[3].Maximum = 80;
+            arrTrackBar[4].Minimum = 1;
+            arrTrackBar[4].Maximum = 3;
 
             Label[] arrLabel = new Label[5]; //значения ползунков
             for (int i = 0; i < arrLabel.Length; i++)
@@ -172,10 +162,10 @@ namespace Bees
             {
                 Random rand = new Random();
                 Bee.countBees = Convert.ToInt32(arrLabel[0].Text);
-                Bee.deathTime = Convert.ToInt32(rand.Next(Convert.ToInt32(arrLabel[1].Text)));
-                Bee.birthTime = Convert.ToInt32(arrLabel[2].Text);
+                Bee.deathTime = Convert.ToInt32(Convert.ToInt32(arrLabel[1].Text)* 10);
+                Queen.birthTime = Convert.ToInt32(arrLabel[2].Text);
                 Egg.growTime = Convert.ToInt32(arrLabel[3].Text);
-                Bee.countEggs = Convert.ToInt32(arrLabel[4].Text);
+                Queen.countEggs = Convert.ToInt32(arrLabel[4].Text);
                 panelParams.Visible = false;
             };
             panelParams.Controls.Add(buttonConfirm);
@@ -192,7 +182,7 @@ namespace Bees
             Controls.Add(menuPanel);
             PictureBox picMenu = new PictureBox()
             {
-                Image = Image.FromFile("3.png"),
+                Image = Image.FromFile("5.png"),
                 Size = new Size(700, 700),
                 Location = new Point(Width/2 - 350, Height/2 - 350),
                 SizeMode = PictureBoxSizeMode.StretchImage

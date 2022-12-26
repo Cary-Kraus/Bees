@@ -11,29 +11,27 @@ namespace Bees
 {
     class Bee : Entity
     {
+        public static List<Bee> bees = new List<Bee>();
         const int MAX_SPEED = 5;
         public static int MaxX;
         public static int MaxY;
-        float vectorX, vectorY;
+        protected float vectorX, vectorY;
         static Random rand = new Random();        
         static Image im1 = Image.FromFile("bee1.gif");
         static Image im2 = Image.FromFile("bee2.gif");
         static Image im3 = Image.FromFile("beeH1.gif");
         static Image im4 = Image.FromFile("beeH2.gif");        
         bool isFull;
-        public static int deathTime; //жизненный цикл рабочей пчелы
-        public static int birthTime; //время возрождения пчел/размножения матки
-        public static int countBees; //кол-во рабочих пчел        
-        public static int countEggs; //кол-во яиц пчел
+        public static int deathTime; //жизненный цикл рабочей пчелы       
+        public static int countBees; //кол-во рабочих пчел              
         public int tempDeathTime;
-        public int tempBirthTime;
-        public int tempGrowTime;
-        public int time = 0;
+        protected bool sleep;
+        static int time = 0;
         public static bool timerTick = true;
         HoneyComb comb;
         public enum State
         {
-            Search, MoveTo, TakeHoney, GiveHoney, Birth, Death
+            Search, MoveTo, TakeHoney, GiveHoney, Death, Sleep
         };
         State state;
         internal Entity target;
@@ -53,6 +51,8 @@ namespace Bees
             ID = startID++;
             state = State.Search;
             isFull = false;
+            tempDeathTime = rand.Next(50, deathTime);
+            bees.Add(this);
         }
         public override void Draw(Graphics g)
         {
@@ -76,7 +76,15 @@ namespace Bees
         }                
         public override void Live()
         {
-            //Grow();
+            Grow();
+
+            if (bees.Count > 25)
+            {
+                while(bees.Count == 25)
+                {
+                    entities.Remove(this);
+                }
+            }
             switch (state)
             {
                 case State.Search:
@@ -93,6 +101,9 @@ namespace Bees
                     break;
                 case State.Death:
                     Death();
+                    break;
+                case State.Sleep:
+                    GoToSleep();
                     break;
             }
 
@@ -113,7 +124,7 @@ namespace Bees
                 vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
             }
         }
-        void Search()
+        protected void Search()
         {
             Flower f = Flower.Find(this);
             if (f != null && target == null)//если цветок нашелся
@@ -122,7 +133,7 @@ namespace Bees
                 state = State.MoveTo;
             }
         }
-        internal void SetTarget(Entity e) //e - entity(цветок/сота)
+        protected void SetTarget(Entity e) //e - entity(цветок/сота)
         {
             if (e == null) return;            
             PointF p = e.GetCoords();
@@ -141,7 +152,7 @@ namespace Bees
                 vectorY = 0;
             }
         }
-        void MoveTo()
+        protected void MoveTo()
         {
             if (target != null && target.InRadius(GetCoords(), imRadius))
             {                
@@ -152,6 +163,8 @@ namespace Bees
                     state = State.GiveHoney;
                 else
                     state = State.TakeHoney;
+                if (sleep)
+                    Sleep();
                 target = null;
             }
             
@@ -183,16 +196,42 @@ namespace Bees
         void Grow()
         {
             time++;
-            if (time > rand.Next(10,50)) state = State.Death;
+            tempDeathTime--;
+            if (tempDeathTime == 10)
+            {
+                state = State.Death;                
+            }
         }
         void Death()
         {
-            im1 = im2 = im3 = im4 = Image.FromFile("Egg.png");
+            image = Image.FromFile("dead.png");
             vectorX = 0;
             vectorY = 0;
-            target = null;
-            if (time > rand.Next(50, 100))
+            target = null; //обнулить цель
+            if (comb is null == false) 
+                comb.isRezerved = false; //убрать бронь
+            if (tempDeathTime == 0)
+            {
                 entities.Remove(this);
+            }
+            //if (time > rand.Next(50, 100))                   
+        }
+        public virtual void GoToSleep()
+        {
+            sleep = true;         
+            comb = HoneyComb.FindPlaceSleep(); //находим свободную соту, запоминаем
+            //comb.ISRezerved = true; //бронируем соту
+            SetTarget(comb); //устанавливаем путь к ней             
+            state = State.MoveTo;
+            if (comb == null)
+                return;
+                     
+        }
+        public void Sleep()
+        {
+            image = Image.FromFile("dead.png");
+            vectorX = 0;
+            vectorY = 0;
         }
     }
 
