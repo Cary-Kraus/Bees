@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Bees
 {
@@ -20,7 +16,9 @@ namespace Bees
         static Image im1 = Image.FromFile("bee1.gif");
         static Image im2 = Image.FromFile("bee2.gif");
         static Image im3 = Image.FromFile("beeH1.gif");
-        static Image im4 = Image.FromFile("beeH2.gif");        
+        static Image im4 = Image.FromFile("beeH2.gif");
+        static Image im5 = Image.FromFile("sleep.png");
+        static Image im6 = Image.FromFile("dead.png");
         bool isFull;
         public static int deathTime; //жизненный цикл рабочей пчелы       
         public static int countBees; //кол-во рабочих пчел              
@@ -55,8 +53,7 @@ namespace Bees
             bees.Add(this);
         }
         public override void Draw(Graphics g)
-        {
-            
+        {            
             if (vectorX < 0)
             {
                 if (isFull)
@@ -73,7 +70,7 @@ namespace Bees
             }
             ImageAnimator.UpdateFrames();
             g.DrawImage(image, new RectangleF(coords.X - 32, coords.Y - 32, 64, 64));
-        }                
+        }     
         public override void Live()
         {
             Grow();
@@ -103,12 +100,12 @@ namespace Bees
                     Death();
                     break;
                 case State.Sleep:
-                    GoToSleep();
+                    Sleep();
                     break;
             }
 
             coords.X += vectorX;
-            coords.Y += vectorY;
+            coords.Y += vectorY;  
             
             if (coords.X <= 20)
                 vectorX = -vectorX;
@@ -118,12 +115,15 @@ namespace Bees
                 vectorY = -vectorY;
             if (coords.Y >= MaxY-50)
                 vectorY = -vectorY;
-            if (vectorX == 0 | vectorY == 0)
+            if (vectorX == 0 | vectorY == 0 && state != State.Sleep && state != State.MoveTo)
             {
                 vectorX = rand.Next(-MAX_SPEED, MAX_SPEED);
                 vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
             }
         }
+        /// <summary>
+        /// Поиск цветка
+        /// </summary>
         protected void Search()
         {
             Flower f = Flower.Find(this);
@@ -133,6 +133,10 @@ namespace Bees
                 state = State.MoveTo;
             }
         }
+        /// <summary>
+        /// Вычисляет значения векторов движения пчелы в направлении цели е 
+        /// </summary>
+        /// <param name="e">Объект Entity - цветок или сота</param>
         protected void SetTarget(Entity e) //e - entity(цветок/сота)
         {
             if (e == null) return;            
@@ -152,25 +156,35 @@ namespace Bees
                 vectorY = 0;
             }
         }
+        /// <summary>
+        /// "Сажает" пчелу на цель и вызывает следующий метод в зависимости от текущего состояния пчелы
+        /// </summary>
         protected void MoveTo()
         {
             if (target != null && target.InRadius(GetCoords(), imRadius))
-            {                
+            {
                 coords = target.GetCoords();                
                 vectorX = 0;
                 vectorY = 0;
                 if (isFull)
+                {
                     state = State.GiveHoney;
+                }                   
                 else
-                    state = State.TakeHoney;
+                {
+                    state = State.TakeHoney;                   
+                }                
                 if (sleep)
-                    Sleep();
+                    state = State.Sleep;
                 target = null;
-            }
-            
+            }           
         }        
+        /// <summary>
+        /// Вызывется для того чтобы пчела забрала мед из цветка
+        /// </summary>
         void TakeHoney()
         {
+            File.AppendAllText("file.txt", $"Вызван NakeHoney()\n ");
             isFull = true;
             comb = HoneyComb.FindFreeComb(); //находим свободную соту, запоминаем
             if (comb == null)
@@ -182,8 +196,11 @@ namespace Bees
             comb.isRezerved = true; //бронируем соту
             state = State.MoveTo;
         }
+        /// <summary>
+        /// Вызывается для того чтобы пчела положила мед в соту
+        /// </summary>
         void GiveHoney()
-        {            
+        {
             vectorX = 0;
             vectorY = 0;
             isFull = false;
@@ -193,18 +210,22 @@ namespace Bees
             vectorX = rand.Next(-MAX_SPEED, MAX_SPEED);
             vectorY = rand.Next(-MAX_SPEED, MAX_SPEED);
         }        
+        /// <summary>
+        /// Счетчик, который вычисляет время смерти пчелы
+        /// </summary>
         void Grow()
         {
             time++;
             tempDeathTime--;
             if (tempDeathTime == 10)
-            {
                 state = State.Death;                
-            }
         }
+        /// <summary>
+        /// Останавливает движение пчелы и удаляет ее
+        /// </summary>
         void Death()
         {
-            image = Image.FromFile("dead.png");
+            image = im6;
             vectorX = 0;
             vectorY = 0;
             target = null; //обнулить цель
@@ -216,23 +237,30 @@ namespace Bees
             }
             //if (time > rand.Next(50, 100))                   
         }
+        /// <summary>
+        /// Дает команду пчеле искать место для сна и лететь к нему
+        /// </summary>
         public virtual void GoToSleep()
         {
             sleep = true;         
             comb = HoneyComb.FindPlaceSleep(); //находим свободную соту, запоминаем
-            //comb.ISRezerved = true; //бронируем соту
             SetTarget(comb); //устанавливаем путь к ней             
             state = State.MoveTo;
+            MoveTo();
+            isFull = false;
             if (comb == null)
-                return;
-                     
+                return;                    
         }
+        /// <summary>
+        /// Останавливает движение пчелы и меняет ее изображение
+        /// </summary>
         public void Sleep()
         {
-            image = Image.FromFile("dead.png");
+            image = im5;
             vectorX = 0;
             vectorY = 0;
-        }
+            state = State.Sleep;
+        }        
     }
 
 }

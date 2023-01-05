@@ -37,6 +37,9 @@ namespace Bees
         {
             g.DrawImage(im, new RectangleF(coords.X - 12, coords.Y - 12, 24, 24));
         }
+        /// <summary>
+        /// Удаляет объект egg и вместо него создает объект bee
+        /// </summary>
         void Transformation()
         {
             Point p = new Point((int)coords.X, (int)coords.Y );

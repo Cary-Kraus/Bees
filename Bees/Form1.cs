@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 
@@ -14,7 +9,9 @@ namespace Bees
     public partial class Form1 : Form
     {
         static Timer timer = new Timer();
-
+        /// <summary>
+        /// Запускает таймер
+        /// </summary>
         internal void TimerStart()
         {
             if (Bee.timerTick == false)
@@ -32,58 +29,21 @@ namespace Bees
                     Refresh();
                 };
             }
-        }
-
-        private void buttonStart_Click(object sender, EventArgs e)
-        {
-            Random rand = new Random();
-            Bee.MaxX = Width;
-            Bee.MaxY = Height;
-
-            for (int j = 0; j < 12; j++)
-            {
-                if (j % 2 != 0)
-                {
-                    for (int i = 0; i < 7; i++)
-                    {
-                        new HoneyComb(new Point(Width - 173 - i * 44, Height / 5 + 67 + j * 33));
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < 7; i++)
-                    {
-                        new HoneyComb(new Point(Width - 150 - i * 44, Height / 5 + 67 + j * 33));
-                    }
-                }
-                
-            }
-            for (int i = 0; i < 10; i++)
-                new Flower(new Point(rand.Next(50, Width / 2), rand.Next(50, Height - 50)), $"{rand.Next(1,5)}.png");                
-            for (int i = 0; i < Bee.countBees; i++)
-                new Bee(new Point(rand.Next(50, Width - 200), rand.Next(50, Height - 50)));
-            for (int i = 0; i < 3; i++)
-            {
-                new Drone(new Point((int)(HoneyComb.GetDronesPlaces()[i].X), (int)(HoneyComb.GetDronesPlaces()[i].Y)));
-            }
-            Queen queen = new Queen(new Point((int)(HoneyComb.GetQueenPlace().X), (int)(HoneyComb.GetQueenPlace().Y)));
-            TimerStart();
-            buttonStart.Visible = false;
-        }        
-
+        }      
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             foreach (var entity in Entity.GetAll())
                 entity.Draw(e.Graphics);           
         }
-
-        private void ParamsPanel()//панель параметров игры задаваемых пользователем
+        /// <summary>
+        /// Создает и настраивает элементы формы и их поведение
+        /// </summary>
+        private void GreateFormObjects()
         {
             Panel panelParams = new Panel()
             {
-                Size = new Size(Width, Height),
-                //Margin = new Padding(100)
-            }; //панель
+                Size = new Size(Width, Height)
+            }; 
             Controls.Add(panelParams);            
 
             TrackBar[] arrTrackBar = new TrackBar[5]; //ползунки
@@ -96,7 +56,7 @@ namespace Bees
                     TickFrequency = 5,
                     LargeChange = 3,
                     SmallChange = 2,
-                    Location = new Point(600, (i + 1) * 100),
+                    Location = new Point(700, (i + 1) * 100),
                     Size = new Size(Width / 3, Height / 10)
                 };
                 panelParams.Controls.Add(arrTrackBar[i]);
@@ -120,21 +80,22 @@ namespace Bees
                 {
                     Location = new Point(860, (i + 1) * 100 - 45),
                     Size = new Size(Width / 3, Height / 10),
-                    Font = new Font(FontFamily.GenericSerif, 20),
+                    Font = new Font("Comic Sans MS", 20),
+                    ForeColor = Color.FromArgb(1, 52, 8),
                     Text = arrTrackBar[i].Value.ToString()
                 };
                 panelParams.Controls.Add(arrLabel[i]);
             }
-
             Label[] arrLabelnames = new Label[5];
             {
                 for (int i = 0; i < arrLabelnames.Length; i++)
                 {
                     arrLabelnames[i] = new Label()
                     {
-                        Location = new Point(60, (i + 1) * 100),
+                        Location = new Point(80, (i + 1) * 100),
                         Size = new Size(Width / 3, Height / 10),
-                        Font = new Font(FontFamily.GenericSerif, 20),
+                        Font = new Font("Comic Sans MS", 20),
+                        ForeColor = Color.FromArgb(1, 52, 8)
                     };
                     panelParams.Controls.Add(arrLabelnames[i]);
                 }
@@ -154,12 +115,18 @@ namespace Bees
             Button buttonConfirm = new Button()
             {
                 Size = new Size(Width / 4, Height / 10),
-                Location = new Point(600, 600),
+                Location = new Point(300, 600),
                 Text = "Применить",
-                Font = new Font(FontFamily.GenericSerif, 20)
-            }; //кнопка подтверждения
+                BackColor = Color.SeaGreen,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Comic Sans MS", 25),
+                ForeColor = Color.FromArgb(1, 52, 8)
+            };
             buttonConfirm.Click += (sender, args) =>
             {
+                HoneyComb.Reset();
+                Entity.Reset();
+
                 Random rand = new Random();
                 Bee.countBees = Convert.ToInt32(arrLabel[0].Text);
                 Bee.deathTime = Convert.ToInt32(Convert.ToInt32(arrLabel[1].Text)* 10);
@@ -167,10 +134,84 @@ namespace Bees
                 Egg.growTime = Convert.ToInt32(arrLabel[3].Text);
                 Queen.countEggs = Convert.ToInt32(arrLabel[4].Text);
                 panelParams.Visible = false;
+                Bee.MaxX = Width;
+                Bee.MaxY = Height;
+              
+                GreateGameObjects();
             };
             panelParams.Controls.Add(buttonConfirm);
+
+            Button buttonExit = new Button()
+            {
+                Size = new Size(Width / 4, Height / 10),
+                Location = new Point(900, 600),
+                Text = "Назад",
+                BackColor = Color.SeaGreen,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Comic Sans MS", 25),
+                ForeColor = Color.FromArgb(1, 52, 8)
+            };
+            buttonExit.Click += (sender, args) =>
+            {
+                panelParams.Visible = false;                
+            };
+            panelParams.Controls.Add(buttonExit);
+            buttonExit.Visible = false;
+
+            Button buttonParams = new Button()
+            {
+                Size = new Size(150, 50),
+                Location = new Point(1350, 30),
+                Text = "Параметры",
+                BackColor = Color.SeaGreen,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Comic Sans MS", 15),
+                ForeColor = Color.FromArgb(1, 52, 8)
+            };
+            buttonParams.Click += (sender, args) =>
+            {
+                panelParams.Visible = true;
+                buttonExit.Visible = true;
+            };
+            Controls.Add(buttonParams);            
         }
-                
+        /// <summary>
+        /// Создает сущностей на форме
+        /// </summary>
+        private void GreateGameObjects()
+        {
+            Random rand = new Random();
+            for (int j = 0; j < 12; j++)
+            {
+                if (j % 2 != 0)
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        new HoneyComb(new Point(Width - 173 - i * 44, Height / 5 + 67 + j * 33));
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        new HoneyComb(new Point(Width - 150 - i * 44, Height / 5 + 67 + j * 33));
+                    }
+                }
+            }
+            for (int i = 0; i < 10; i++)
+                new Flower(new Point(rand.Next(50, Width / 2), rand.Next(50, Height - 50)), $"{rand.Next(1, 5)}.png");
+            for (int i = 0; i < Bee.countBees; i++)
+                new Bee(new Point(rand.Next(50, Width - 200), rand.Next(50, Height - 50)));
+            for (int i = 0; i < 3; i++)
+            {
+                new Drone(new Point((int)(HoneyComb.GetDronesPlaces()[i].X), (int)(HoneyComb.GetDronesPlaces()[i].Y)));
+            }
+            Queen queen = new Queen(new Point((int)(HoneyComb.GetQueenPlace().X), (int)(HoneyComb.GetQueenPlace().Y)));
+            TimerStart();           
+        }
+        /// <summary>
+        /// Начальный экран приложения
+        /// </summary>
         private void StartMenu()
         {
             Panel menuPanel = new Panel()
@@ -188,7 +229,9 @@ namespace Bees
                 SizeMode = PictureBoxSizeMode.StretchImage
             };
             menuPanel.Controls.Add(picMenu);
+            GreateFormObjects();
         }
+        
         private void buttonPause_Click(object sender, EventArgs e)
         {
             timer.Stop();
@@ -204,16 +247,16 @@ namespace Bees
         }       
         private void buttonParams_Click(object sender, EventArgs e)
         {
-            ParamsPanel();
+            GreateFormObjects();
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            ParamsPanel();
+            StartMenu();           
         }
         private void buttonMenu_Click(object sender, EventArgs e)
         {
             StartMenu();
-        }
+        }        
         public Form1()
         {
             InitializeComponent();

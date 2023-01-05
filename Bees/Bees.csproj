@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bee.cs" />
-    <Compile Include="BeeHive.cs" />
     <Compile Include="Drone.cs" />
     <Compile Include="Egg.cs" />
     <Compile Include="Entity.cs" />
